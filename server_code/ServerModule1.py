@@ -5,7 +5,7 @@ import random
 import string
 from io import BytesIO
 import requests
-import json
+import json, re
 
 @anvil.server.callable
 def extract_names(uploaded_file):
@@ -16,6 +16,50 @@ def extract_names(uploaded_file):
         if "Name" in df.iloc[i].values:
             name_col = df.iloc[i].values.tolist().index("Name")
             return df.iloc[i + 1:, name_col].dropna().tolist()
+    raise ValueError("未找到‘Name’表头")
+
+@anvil.server.callable
+def extract_names_with_filter(uploaded_file):
+    # 从Excel中提取名称
+    file = BytesIO(uploaded_file.get_bytes())
+    df = pd.read_excel(file, header=None)
+    
+    for i in range(3):  # 遍历前三行查找“Name”表头
+        if "Name" in df.iloc[i].values:
+            name_col = df.iloc[i].values.tolist().index("Name")
+            names = df.iloc[i + 1:, name_col].dropna().tolist()
+            
+            # 处理名称过滤逻辑
+            filtered_names = []
+            for name in names:
+                # 转换为字符串，防止意外的非字符串数据
+                name = str(name)
+                
+                # 跳过以 '‘' 开头的名称
+                if name.startswith('‘') or '---' in name or '//' in name:
+                    continue
+                
+                # 移除 [] 「」『』中的内容
+                name = re.sub(r'\[.*?\]', '', name)
+                name = re.sub(r'「.*?」', '', name)
+                name = re.sub(r'『.*?』', '', name)
+                
+                # 移除 Lv1、Lv.2、LvMAX 等内容
+                name = re.sub(r'Lv\d+', '', name)
+                name = re.sub(r'Lv\.\d+', '', name)
+                name = re.sub(r'LvMAX', '', name)              
+                
+                # 移除多余的空格
+                name = name.strip()
+                
+                # 如果处理后的名称非空，则添加到过滤后的列表
+                if name:
+                    filtered_names.append(name)
+            
+            # 去重并保持顺序
+            unique_names = list(dict.fromkeys(filtered_names))
+            return unique_names
+    
     raise ValueError("未找到‘Name’表头")
 
 @anvil.server.callable
@@ -51,15 +95,16 @@ def generate_names_with_dify(old_names):
             "user": "anvil-tools"
         }
 
-        print("payload:", payload)
+        print("old_name:", payload['query'])
         try:
             response = requests.post(api_url, headers=headers, data=json.dumps(payload))
             response.raise_for_status()
             
-            result = response.json()
-            print("result:", result)
+            result = response.json()            
             if "answer" in result:
-                batch_new_names = [name.strip() for name in result['answer'].split(',') if name.strip()]
+                answer = result['answer'].replace('，', ',')
+                print("new_name:", answer)
+                batch_new_names = [name.strip() for name in answer.split(',') if name.strip()]
                 if len(batch_new_names) == len(batch):
                     all_new_names.extend(batch_new_names)
                 else:

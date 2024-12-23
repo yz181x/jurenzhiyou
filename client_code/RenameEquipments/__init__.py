@@ -18,32 +18,44 @@ class RenameEquipments(RenameEquipmentsTemplate):
   def extract_names_button_click(self, **event_args):
       # 提取装备名称
       if self.uploaded_file:
-          self.equipment_names = anvil.server.call("extract_names", self.uploaded_file)
+          self.equipment_names = anvil.server.call("extract_names_with_filter", self.uploaded_file)
           self.repeating_panel_1.items = [{"old_name": name, "new_name": ""} for name in self.equipment_names]
       else:
           alert("请先上传文件！")
 
   def generate_names_button_click(self, **event_args):     
-      # 为装备重新生成名字
-      if self.equipment_names:          
-          try:         
-              # 调用服务端函数
-              result = anvil.server.call("generate_names_with_dify", self.equipment_names)
-
-              print("result:", result)
-              if not result["success"]:
-                  # 如果失败，弹出提示框
-                  anvil.alert("重命名失败, 请重试。", title="失败", large=True)
-              else:
-                  # 如果成功，获取新名字
-                  new_names = result["new_names"]
-                  for item, new_name in zip(self.repeating_panel_1.items, new_names):
-                      item["new_name"] = new_name
-                  self.repeating_panel_1.items = self.repeating_panel_1.items  # 刷新显示
-          except Exception as e:
-              anvil.alert(f"重命名发生错误, 请重试: {str(e)}", title="错误", large=True)
-      else:
-          alert("请先提取装备名称！")
+    # 为装备重新生成名字
+    if self.equipment_names:          
+        try:
+            all_new_names = []  # 存储所有新名字
+            
+            # 将名字分批，每批100个
+            batch_size = 100
+            batches = [self.equipment_names[i:i + batch_size] for i in range(0, len(self.equipment_names), batch_size)]
+            
+            for batch in batches:
+                # 调用服务端函数
+                result = anvil.server.call("generate_names_with_dify", batch)
+                print("batch result:", result)
+                
+                if not result["success"]:
+                    # 如果任意批次失败，弹出提示框并终止
+                    anvil.alert("重命名失败, 请重试。", title="失败", large=True)
+                    return
+                
+                # 添加当前批次的新名字到总列表
+                all_new_names.extend(result["new_names"])
+            
+            # 更新RepeatingPanel显示
+            for item, new_name in zip(self.repeating_panel_1.items, all_new_names):
+                item["new_name"] = new_name
+            self.repeating_panel_1.items = self.repeating_panel_1.items  # 刷新显示
+            
+        except Exception as e:
+            # 捕获并提示错误
+            anvil.alert(f"重命名发生错误, 请重试: {str(e)}", title="错误", large=True)
+    else:
+        anvil.alert("请先提取装备名称！", title="提示", large=True)
 
   def save_updated_file_button_click(self, **event_args):
       # 保存新的装备表
