@@ -9,7 +9,7 @@ components:
     - event_bindings: {change: monster_files_loader_change}
       layout_properties: {grid_position: 'OXHCDY,CJIZGG'}
       name: monster_files_loader
-      properties: {multiple: true, role: outlined-button, text: 上传需要改名的爆率文件（可多选）}
+      properties: {multiple: true, role: outlined-button, text: 上传需要改名的爆率文件（可多选，一次尽量不要超过200个）}
       type: FileLoader
     - event_bindings: {click: rename_monster_equipment_button_click}
       layout_properties: {grid_position: 'ZNZJSA,YJKQNV'}
@@ -36,7 +36,7 @@ components:
   type: FlowPanel
 - layout_properties: {slot: title}
   name: label_1
-  properties: {text: 重新命名怪物爆出的装备名}
+  properties: {text: 修改怪物的爆率文件}
   type: Label
 container:
   properties: {html: '@theme:standard-page.html'}
