@@ -98,7 +98,7 @@ def generate_names_with_dify(old_names):
             "user": "anvil-tools"
         }
 
-        print("old_name:", payload['query'])
+        # print("old_name:", payload['query'])
         try:
             response = requests.post(api_url, headers=headers, data=json.dumps(payload))
             response.raise_for_status()
@@ -106,7 +106,7 @@ def generate_names_with_dify(old_names):
             result = response.json()            
             if "answer" in result:
                 answer = result['answer'].replace('，', ',')
-                print("new_name:", answer)
+                # print("new_name:", answer)
                 batch_new_names = [name.strip() for name in answer.split(',') if name.strip()]
                 if len(batch_new_names) >= len(batch):
                     # 如果新名字的个数大于或等于旧名字，取前len(batch)个新名字
@@ -171,8 +171,12 @@ def rename_monster_equipment(name_mapping_file, monster_files):
             try:
                 monster_data = monster_file.get_bytes().decode("utf-8")
             except UnicodeDecodeError:
+              try:
                 monster_data = monster_file.get_bytes().decode("gbk")
                 encoding_used = "gbk"
+              except UnicodeDecodeError as e:
+                print(f"{monster_file.name} decode error: {str(e)}")
+                continue
     
             # 修改怪物文件中的装备名称
             # for old_name, new_name in mapping.items():
@@ -185,8 +189,8 @@ def rename_monster_equipment(name_mapping_file, monster_files):
             for line in lines:
                 # 提取名字
                 name_match = extract_name(line)
-                print("lind:", line)
-                print("name:", name_match)
+                # print("lind:", line)
+                # print("name:", name_match)
             
                 # 查找替换对应关系
                 if name_match in mapping:
@@ -207,6 +211,18 @@ def rename_monster_equipment(name_mapping_file, monster_files):
     zip_media = anvil.BlobMedia("application/zip", zip_buffer.read(), name="Renamed_Files.zip")
     return zip_media
 
+@anvil.server.callable
+def merge_zip_files(zip_files):
+    # 合并多个 ZIP 文件
+    final_zip_buffer = BytesIO()
+    with zipfile.ZipFile(final_zip_buffer, 'w', zipfile.ZIP_DEFLATED) as final_zip:
+        for zip_file in zip_files:
+            with zipfile.ZipFile(BytesIO(zip_file.get_bytes()), 'r') as batch_zip:
+                for file_name in batch_zip.namelist():
+                    final_zip.writestr(file_name, batch_zip.read(file_name))
+    final_zip_buffer.seek(0)
+    return anvil.BlobMedia('application/zip', final_zip_buffer.read(), name='final_monsters.zip')
+  
 # 定义用于提取名字的正则表达式
 def extract_name(line):
     # 去掉分数部分，如 "1/100" 或 "1/1"
