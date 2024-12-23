@@ -25,12 +25,12 @@ class RenameEquipments(RenameEquipmentsTemplate):
 
   def generate_names_button_click(self, **event_args):     
       # 为装备重新生成名字
-      if self.equipment_names:
-          new_names = anvil.server.call("generate_names_with_dify", self.equipment_names)
+      if self.equipment_names:          
           try:         
               # 调用服务端函数
-              result = anvil.server.call('generate_names', self.equipment_names)
-              
+              result = anvil.server.call("generate_names_with_dify", self.equipment_names)
+
+              print("result:", result)
               if not result["success"]:
                   # 如果失败，弹出提示框
                   anvil.alert("重命名失败, 请重试。", title="失败", large=True)

@@ -54,7 +54,6 @@ def generate_names_with_dify(old_names):
         print("payload:", payload)
         try:
             response = requests.post(api_url, headers=headers, data=json.dumps(payload))
-            print("API Response:", response)
             response.raise_for_status()
             
             result = response.json()
@@ -71,7 +70,8 @@ def generate_names_with_dify(old_names):
             return {"success": False, "error": str(e)}
 
     # 如果所有批次成功
-    return {"success": True, "new_names": all_new_names}
+    result = {"success": True, "new_names": all_new_names}
+    return result
 
 @anvil.server.callable
 def save_updated_file(items, uploaded_file):
