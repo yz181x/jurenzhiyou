@@ -9,12 +9,12 @@ components:
     - event_bindings: {change: monster_files_loader_change}
       layout_properties: {grid_position: 'OXHCDY,CJIZGG'}
       name: monster_files_loader
-      properties: {multiple: true, role: outlined-button, text: 上传需要重新命名的文件（可多选）}
+      properties: {multiple: true, role: outlined-button, text: 上传需要改名的爆率文件（可多选）}
       type: FileLoader
     - event_bindings: {click: rename_monster_equipment_button_click}
       layout_properties: {grid_position: 'ZNZJSA,YJKQNV'}
       name: rename_monster_equipment_button
-      properties: {align: full, role: filled-button, text: 修改怪物爆出的装备名称}
+      properties: {align: full, role: filled-button, text: 修改}
       type: Button
     layout_properties: {grid_position: 'OBPWMZ,ARFGTJ'}
     name: column_panel_1

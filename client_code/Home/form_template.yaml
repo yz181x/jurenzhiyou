@@ -1,15 +1,36 @@
 components:
 - components:
-  - event_bindings: {click: button_1_click}
-    layout_properties: {grid_position: 'FYEBJB,GSIEOD'}
-    name: button_1
-    properties: {align: full, role: tonal-button, text: 重新起名}
-    type: Button
-  - event_bindings: {click: button_2_click}
-    layout_properties: {grid_position: 'OYAOHJ,ORRBPB'}
-    name: button_2
-    properties: {align: full, role: tonal-button, text: 修改怪物的装备名}
-    type: Button
+  - components:
+    - layout_properties: {grid_position: 'LSVQFJ,ASGIRK'}
+      name: spacer_1
+      properties: {height: '113'}
+      type: Spacer
+    - layout_properties: {grid_position: 'LSVQFJ,AXFYSQ OFDGKB,DTZOWQ'}
+      name: spacer_2
+      properties: {height: 32}
+      type: Spacer
+    - event_bindings: {click: button_1_click}
+      layout_properties: {grid_position: 'LSVQFJ,AXFYSQ'}
+      name: button_1
+      properties: {align: full, role: tonal-button, text: 重新起名}
+      type: Button
+    - layout_properties: {grid_position: 'LSVQFJ,HBRRCN ZNSNAF,WBISMB'}
+      name: spacer_3
+      properties: {height: 32}
+      type: Spacer
+    - event_bindings: {click: button_2_click}
+      layout_properties: {grid_position: 'LSVQFJ,HBRRCN KKDLLW,SDYOUY'}
+      name: button_2
+      properties: {align: full, role: tonal-button, text: 修改爆率表}
+      type: Button
+    - layout_properties: {grid_position: 'LSVQFJ,WULZCD'}
+      name: spacer_4
+      properties: {height: '113'}
+      type: Spacer
+    layout_properties: {grid_position: 'XLUOJS,BKSPWN'}
+    name: outlined_card_1
+    properties: {col_widths: '{"AXFYSQ":25,"HBRRCN":25}', role: outlined-card}
+    type: ColumnPanel
   layout_properties: {slot: default}
   name: content_panel
   properties: {col_widths: '{}'}
@@ -18,6 +39,10 @@ components:
   name: navbar_links
   properties: {}
   type: FlowPanel
+- layout_properties: {slot: title}
+  name: label_1
+  properties: {text: 巨人智游}
+  type: Label
 container:
   properties: {html: '@theme:standard-page.html'}
   type: HtmlTemplate

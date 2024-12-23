@@ -163,18 +163,21 @@ def rename_monster_equipment(name_mapping_file, monster_files):
     zip_buffer = BytesIO()
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
         for monster_file in monster_files:
-            # 修改怪物文件中的装备名称
+            # 记录文件的编码
+            encoding_used = "utf-8"
             try:
                 monster_data = monster_file.get_bytes().decode("utf-8")
             except UnicodeDecodeError:
                 monster_data = monster_file.get_bytes().decode("gbk")
-
+                encoding_used = "gbk"
+    
+            # 修改怪物文件中的装备名称
             for old_name, new_name in mapping.items():
                 monster_data = monster_data.replace(old_name, new_name)
-
+    
             # 将修改后的内容写入 ZIP 文件
-            renamed_file_name = f"Renamed_{monster_file.name}"
-            zip_file.writestr(renamed_file_name, monster_data)
+            renamed_file_name = f"{monster_file.name}"
+            zip_file.writestr(renamed_file_name, monster_data.encode(encoding_used))
 
     # 创建一个 ZIP 文件供下载
     zip_buffer.seek(0)

@@ -24,15 +24,20 @@ components:
     name: generate_names_button
     properties: {align: full, role: elevated-button, text: 3、重新起名}
     type: Button
-  - event_bindings: {click: save_updated_file_button_click}
-    layout_properties: {grid_position: 'HWBNEO,RHJQHE'}
-    name: save_updated_file_button
-    properties: {align: full, role: filled-button, text: 保存新的装备表, visible: false}
-    type: Button
   - event_bindings: {click: save_mapping_file_button_click}
     layout_properties: {grid_position: 'ZHBDEJ,CGXOIA'}
     name: save_mapping_file_button
     properties: {align: full, role: filled-button, text: 4、保存新旧名字对应关系}
+    type: Button
+  - event_bindings: {click: button_1_click}
+    layout_properties: {grid_position: 'JUQPFG,EVRHCA'}
+    name: button_1
+    properties: {align: full, role: filled-button, text: 5、修改爆率表}
+    type: Button
+  - event_bindings: {click: save_updated_file_button_click}
+    layout_properties: {grid_position: 'WEPRCK,OPYDQR'}
+    name: save_updated_file_button
+    properties: {align: full, role: filled-button, text: 保存新的装备表, visible: false}
     type: Button
   - layout_properties: {grid_position: 'DORSLZ,JRUMIY'}
     name: label_2
