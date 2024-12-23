@@ -47,7 +47,10 @@ def extract_names_with_filter(uploaded_file):
                 # 移除 Lv1、Lv.2、LvMAX 等内容
                 name = re.sub(r'Lv\d+', '', name)
                 name = re.sub(r'Lv\.\d+', '', name)
-                name = re.sub(r'LvMAX', '', name)              
+                name = re.sub(r'LvMAX', '', name)
+                
+                # 移除独立的数字部分（当数字后跟随中文字符时）
+                name = re.sub(r'\b\d+\s*(?=\D)', '', name)
                 
                 # 移除多余的空格
                 name = name.strip()
@@ -172,8 +175,28 @@ def rename_monster_equipment(name_mapping_file, monster_files):
                 encoding_used = "gbk"
     
             # 修改怪物文件中的装备名称
-            for old_name, new_name in mapping.items():
-                monster_data = monster_data.replace(old_name, new_name)
+            # for old_name, new_name in mapping.items():
+            #     monster_data = monster_data.replace(old_name, new_name)
+          
+            # 对 monster_data 的每行进行处理
+            lines = monster_data.splitlines()
+            updated_lines = []
+
+            for line in lines:
+                # 提取名字
+                name_match = extract_name(line)
+                print("lind:", line)
+                print("name:", name_match)
+            
+                # 查找替换对应关系
+                if name_match in mapping:
+                    new_name = mapping[name_match]
+                    line = line.replace(name_match, new_name)
+            
+                updated_lines.append(line)
+            
+            # 将更新后的行重新拼接
+            monster_data = "\n".join(updated_lines)
     
             # 将修改后的内容写入 ZIP 文件
             renamed_file_name = f"{monster_file.name}"
@@ -183,3 +206,19 @@ def rename_monster_equipment(name_mapping_file, monster_files):
     zip_buffer.seek(0)
     zip_media = anvil.BlobMedia("application/zip", zip_buffer.read(), name="Renamed_Files.zip")
     return zip_media
+
+# 定义用于提取名字的正则表达式
+def extract_name(line):
+    # 去掉分数部分，如 "1/100" 或 "1/1"
+    line = re.sub(r'\b\d+/\d+\b', '', line)
+    # 去掉前置的独立整数，但保留中文字符
+    line = re.sub(r'\b\d+\s*(?=\D)', '', line)
+    # 去掉方括号、花括号中的内容
+    line = re.sub(r'[\[\]\{\}\u300c\u300d\u300e\u300f][^\[\]\{\}\u300c\u300d\u300e\u300f]*[\[\]\{\}\u300c\u300d\u300e\u300f]', '', line)
+    # 去掉等级标识，如 "Lv1", "Lv.2", "LvMAX"
+    line = re.sub(r'Lv(?:\.?\d+|MAX)', '', line, flags=re.IGNORECASE)
+    # 去掉多余的空格和可能残留的无效字符
+    line = re.sub(r'^\s*|\s+$', '', line)
+    # 去掉多余的连续空格
+    line = re.sub(r'\s+', ' ', line)
+    return line.strip()
