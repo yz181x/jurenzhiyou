@@ -1,0 +1,17 @@
+components:
+- data_bindings:
+  - {code: 'self.item[''old_name'']', property: text, writeback: false}
+  layout_properties: {grid_position: 'KKBYZX,WCFFJH'}
+  name: label_1
+  properties: {align: center}
+  type: Label
+- data_bindings:
+  - {code: 'self.item[''new_name'']', property: text, writeback: false}
+  layout_properties: {grid_position: 'KKBYZX,QUETZP'}
+  name: label_2
+  properties: {align: center}
+  type: Label
+container:
+  properties: {role: null}
+  type: ColumnPanel
+is_package: true

@@ -3,7 +3,11 @@ unique_ids:
     standard-page.html: CR3UCUIVBLZOGO6VKGDC2XTPRWDEJZX7
     theme.css: AWSUE7V2J3I5WTQJTV4QSSVG57SMF3XX
   forms:
-    Form1: VORXGDDN4GGQWDBZEOTDWB3CVJT6EME3
+    Home: VORXGDDN4GGQWDBZEOTDWB3CVJT6EME3
+    RenameEquipments: '1734917562339650834431584.5544'
+    RenameEquipments.ItemTemplate1: '1734918657451903876972103.761'
+    RenameMonsters: '1734920661522993423478530.8906'
   modules: {}
   scripts: {}
-  server_modules: {}
+  server_modules:
+    ServerModule1: '1734918934331172824467172.54428'
