@@ -6,9 +6,9 @@ components:
     type: Label
   - components:
     - event_bindings: {change: file_loader_change}
-      layout_properties: {grid_position: 'AIYNBM,LHDYLL'}
+      layout_properties: {full_width_row: false, grid_position: 'AIYNBM,LHDYLL'}
       name: file_loader
-      properties: {text: 选择装备表}
+      properties: {bold: true, italic: false, multiple: true, role: outlined-button, text: 1、选择需要重新起名的表格（可多选）, underline: false}
       type: FileLoader
     layout_properties: {grid_position: 'SLMPMY,RHPHXG'}
     name: column_panel_1
@@ -17,22 +17,22 @@ components:
   - event_bindings: {click: extract_names_button_click}
     layout_properties: {grid_position: 'BHENXH,NUBPTV'}
     name: extract_names_button
-    properties: {align: full, role: elevated-button, text: 提取名称}
+    properties: {align: full, role: elevated-button, text: 2、提取名称}
     type: Button
   - event_bindings: {click: generate_names_button_click}
     layout_properties: {grid_position: 'YZWWGY,ZCLJAC'}
     name: generate_names_button
-    properties: {align: full, role: elevated-button, text: 重新起名}
+    properties: {align: full, role: elevated-button, text: 3、重新起名}
     type: Button
   - event_bindings: {click: save_updated_file_button_click}
-    layout_properties: {grid_position: 'ZHBDEJ,FHERAQ'}
+    layout_properties: {grid_position: 'HWBNEO,RHJQHE'}
     name: save_updated_file_button
-    properties: {align: full, role: filled-button, text: 保存新的装备表}
+    properties: {align: full, role: filled-button, text: 保存新的装备表, visible: false}
     type: Button
   - event_bindings: {click: save_mapping_file_button_click}
     layout_properties: {grid_position: 'ZHBDEJ,CGXOIA'}
     name: save_mapping_file_button
-    properties: {align: full, role: filled-button, text: 保存新旧名字对应关系}
+    properties: {align: full, role: filled-button, text: 4、保存新旧名字对应关系}
     type: Button
   - layout_properties: {grid_position: 'DORSLZ,JRUMIY'}
     name: label_2
@@ -62,7 +62,7 @@ components:
   type: FlowPanel
 - layout_properties: {slot: title}
   name: label_4
-  properties: {text: 重新命名装备名称}
+  properties: {text: 重新起名}
   type: Label
 container:
   properties: {html: '@theme:standard-page.html'}

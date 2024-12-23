@@ -7,19 +7,26 @@ import anvil
 class RenameEquipments(RenameEquipmentsTemplate):
   def __init__(self, **properties):
       self.init_components(**properties)
-      self.uploaded_file = None  # 用于存储上传的文件
+      self.uploaded_files = None  # 用于存储上传的文件
       self.equipment_names = []  # 用于存储提取的装备名称
 
-  def file_loader_change(self, file, **event_args):
+  def file_loader_change(self, files, **event_args):
       # 文件上传时触发
-      self.uploaded_file = file
+      self.uploaded_files = files
       alert("文件已上传！")
 
   def extract_names_button_click(self, **event_args):
       # 提取装备名称
-      if self.uploaded_file:
-          self.equipment_names = anvil.server.call("extract_names_with_filter", self.uploaded_file)
+      if self.uploaded_files:  # 修改为处理多个文件
+          all_names = set()  # 使用集合去重
+          for uploaded_file in self.uploaded_files:  # 遍历所有上传的文件
+              extracted_names = anvil.server.call("extract_names_with_filter", uploaded_file)
+              all_names.update(extracted_names)  # 将提取的名称加入集合，去重
+          
+          self.equipment_names = list(all_names)  # 转换为列表          
           self.repeating_panel_1.items = [{"old_name": name, "new_name": ""} for name in self.equipment_names]
+          anvil.alert(f"一共{len(self.equipment_names)}个名称", title="", large=True)
+          # print(f"一共{len(self.equipment_names)}个名称")
       else:
           alert("请先上传文件！")
 

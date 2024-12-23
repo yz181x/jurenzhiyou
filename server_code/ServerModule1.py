@@ -105,10 +105,12 @@ def generate_names_with_dify(old_names):
                 answer = result['answer'].replace('，', ',')
                 print("new_name:", answer)
                 batch_new_names = [name.strip() for name in answer.split(',') if name.strip()]
-                if len(batch_new_names) == len(batch):
-                    all_new_names.extend(batch_new_names)
-                else:
-                    raise ValueError("API返回的名称数量与输入不匹配")
+                if len(batch_new_names) >= len(batch):
+                    # 如果新名字的个数大于或等于旧名字，取前len(batch)个新名字
+                    all_new_names.extend(batch_new_names[:len(batch)])
+                elif len(batch_new_names) < len(batch):
+                    # 如果新名字的个数小于旧名字，用旧名字补齐
+                    all_new_names.extend(batch_new_names + batch[len(batch_new_names):])
             else:
                 raise ValueError("API返回的数据无效")
         except Exception as e:
