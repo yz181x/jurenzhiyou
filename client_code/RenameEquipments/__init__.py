@@ -23,13 +23,25 @@ class RenameEquipments(RenameEquipmentsTemplate):
       else:
           alert("请先上传文件！")
 
-  def generate_names_button_click(self, **event_args):
+  def generate_names_button_click(self, **event_args):     
       # 为装备重新生成名字
       if self.equipment_names:
-          new_names = anvil.server.call("generate_names", self.equipment_names)
-          for item, new_name in zip(self.repeating_panel_1.items, new_names):
-              item["new_name"] = new_name
-          self.repeating_panel_1.items = self.repeating_panel_1.items  # 刷新显示
+          new_names = anvil.server.call("generate_names_with_dify", self.equipment_names)
+          try:         
+              # 调用服务端函数
+              result = anvil.server.call('generate_names', self.equipment_names)
+              
+              if not result["success"]:
+                  # 如果失败，弹出提示框
+                  anvil.alert("重命名失败, 请重试。", title="失败", large=True)
+              else:
+                  # 如果成功，获取新名字
+                  new_names = result["new_names"]
+                  for item, new_name in zip(self.repeating_panel_1.items, new_names):
+                      item["new_name"] = new_name
+                  self.repeating_panel_1.items = self.repeating_panel_1.items  # 刷新显示
+          except Exception as e:
+              anvil.alert(f"重命名发生错误, 请重试: {str(e)}", title="错误", large=True)
       else:
           alert("请先提取装备名称！")
 

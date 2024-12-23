@@ -4,6 +4,8 @@ import zipfile
 import random
 import string
 from io import BytesIO
+import requests
+import json
 
 @anvil.server.callable
 def extract_names(uploaded_file):
@@ -20,6 +22,56 @@ def extract_names(uploaded_file):
 def generate_names(old_names):
     # 生成新的名字，保持风格一致
     return ["EQ_" + "".join(random.choices(string.ascii_uppercase + string.digits, k=5)) for _ in old_names]
+
+@anvil.server.callable
+def generate_names_with_dify(old_names):
+    api_url = 'http://dify-xjp.d5j.tech/v1/chat-messages'
+    api_key = 'app-mfM8om4adlkPFZqYopVZori8'
+    
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {api_key}'
+    }
+
+    all_new_names = []
+    
+    # 将名字分批，每批50个
+    batch_size = 50
+    batches = [old_names[i:i + batch_size] for i in range(0, len(old_names), batch_size)]
+    
+    for batch in batches:
+        # 将当前批次的名字拼接为字符串
+        input_names = ', '.join(batch)
+        
+        # 构造 POST 请求的 payload
+        payload = {
+            "query": input_names,
+            "inputs": {},
+            "response_mode": "blocking",
+            "user": "anvil-tools"
+        }
+
+        print("payload:", payload)
+        try:
+            response = requests.post(api_url, headers=headers, data=json.dumps(payload))
+            print("API Response:", response)
+            response.raise_for_status()
+            
+            result = response.json()
+            print("result:", result)
+            if "answer" in result:
+                batch_new_names = [name.strip() for name in result['answer'].split(',') if name.strip()]
+                if len(batch_new_names) == len(batch):
+                    all_new_names.extend(batch_new_names)
+                else:
+                    raise ValueError("API返回的名称数量与输入不匹配")
+            else:
+                raise ValueError("API返回的数据无效")
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    # 如果所有批次成功
+    return {"success": True, "new_names": all_new_names}
 
 @anvil.server.callable
 def save_updated_file(items, uploaded_file):
