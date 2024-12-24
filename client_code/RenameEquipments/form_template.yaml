@@ -36,7 +36,7 @@ components:
   - event_bindings: {click: button_1_click}
     layout_properties: {grid_position: 'JUQPFG,EVRHCA'}
     name: button_1
-    properties: {align: full, role: elevated-button, text: 5、根据新旧名称对应关系来修改爆率表}
+    properties: {align: full, role: elevated-button, text: 5、根据新旧名称对应关系来修改文件}
     type: Button
   - event_bindings: {click: save_updated_file_button_click}
     layout_properties: {grid_position: 'WEPRCK,OPYDQR'}

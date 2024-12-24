@@ -2,7 +2,7 @@ components:
 - components:
   - layout_properties: {grid_position: 'FRNLGU,QIDKOZ'}
     name: label_1_copy
-    properties: {align: center, bold: false, foreground: 'theme:Primary', role: title, text: 请按如下步骤操作, visible: true}
+    properties: {align: center, bold: false, foreground: 'theme:Primary', role: title, text: 修改怪物爆率文件, visible: true}
     type: Label
   - layout_properties: {grid_position: 'ORKVXP,HZWWMI'}
     name: spacer_1
@@ -14,15 +14,21 @@ components:
       name: name_mapping_loader
       properties: {align: center, role: outlined-button, text: 1、上传新旧名称对应关系表（Name_Mapping.csv）}
       type: FileLoader
-    - event_bindings: {change: monster_files_loader_change}
+    - data_bindings: []
+      event_bindings: {change: monster_files_loader_change}
       layout_properties: {grid_position: 'OXHCDY,CJIZGG'}
       name: monster_files_loader
-      properties: {multiple: true, role: outlined-button, text: 2、上传需要改名的爆率文件（可多选）}
+      properties: {file_types: .txt, multiple: true, role: outlined-button, text: 2、上传需要改名的爆率文件（可多选）}
       type: FileLoader
     - event_bindings: {click: rename_monster_equipment_button_click}
       layout_properties: {grid_position: 'ZNZJSA,YJKQNV'}
       name: rename_monster_equipment_button
-      properties: {align: center, role: filled-button, text: 3、根据新旧名称的对应关系表，修改怪物爆率文件中的名称。}
+      properties: {align: full, role: filled-button, text: 3、根据新旧名称的对应关系表，修改怪物爆率文件中的名称。}
+      type: Button
+    - event_bindings: {click: download_monters_button_click}
+      layout_properties: {grid_position: 'JGXEJV,GRELVV'}
+      name: download_monters_button
+      properties: {align: full, role: outlined-button, text: 4、下载改名后的爆率文件}
       type: Button
     layout_properties: {grid_position: 'OBPWMZ,ARFGTJ'}
     name: column_panel_1
@@ -30,7 +36,7 @@ components:
     type: ColumnPanel
   layout_properties: {slot: default}
   name: content_panel
-  properties: {}
+  properties: {background: 'theme:Primary Container', spacing_below: large}
   type: ColumnPanel
 - components:
   - event_bindings: {click: link_1_click}
@@ -44,8 +50,46 @@ components:
   type: FlowPanel
 - layout_properties: {slot: title}
   name: label_1
-  properties: {text: 修改怪物的爆率文件}
+  properties: {text: 改名}
   type: Label
+- components:
+  - layout_properties: {grid_position: 'FRNLGU,QIDKOZ'}
+    name: label_1_copy_copy
+    properties: {align: center, bold: false, foreground: 'theme:Primary', role: title, text: 修改数据库文件, visible: true}
+    type: Label
+  - layout_properties: {grid_position: 'ORKVXP,HZWWMI'}
+    name: spacer_1_copy
+    properties: {height: 39.444427490234375}
+    type: Spacer
+  - components:
+    - event_bindings: {change: name_mapping_loader_change}
+      layout_properties: {grid_position: 'GPKXIF,VXYTOD'}
+      name: name_mapping_loader_copy
+      properties: {align: center, role: outlined-button, text: 1、上传新旧名称对应关系表（Name_Mapping.csv）}
+      type: FileLoader
+    - event_bindings: {change: db_files_loader_change}
+      layout_properties: {grid_position: 'OXHCDY,CJIZGG'}
+      name: db_files_loader
+      properties: {file_types: .xls, multiple: true, role: outlined-button, text: 2、上传需要改名的数据库文件（可多选）}
+      type: FileLoader
+    - event_bindings: {click: rename_db_equipment_button_click}
+      layout_properties: {grid_position: 'ZNZJSA,YJKQNV'}
+      name: rename_db_equipment_button
+      properties: {align: full, role: filled-button, text: 3、根据新旧名称的对应关系表，修改数据库文件中的名称。}
+      type: Button
+    - event_bindings: {click: download_db_button_click}
+      layout_properties: {grid_position: 'JGXEJV,GRELVV'}
+      name: download_db_button
+      properties: {align: full, role: outlined-button, text: 4、下载改名后的数据库文件}
+      type: Button
+    layout_properties: {grid_position: 'OBPWMZ,ARFGTJ'}
+    name: column_panel_1_copy
+    properties: {}
+    type: ColumnPanel
+  layout_properties: {slot: default}
+  name: content_panel_copy
+  properties: {background: 'theme:Primary Container', spacing_above: large}
+  type: ColumnPanel
 container:
   properties: {html: '@theme:standard-page.html'}
   type: HtmlTemplate

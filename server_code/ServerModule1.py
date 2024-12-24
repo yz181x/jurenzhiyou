@@ -238,3 +238,86 @@ def extract_name(line):
     # 去掉多余的连续空格
     line = re.sub(r'\s+', ' ', line)
     return line.strip()
+
+@anvil.server.callable
+def rename_db_equipment(name_mapping_file, db_files):
+    # 读取新旧名称对应关系文件
+    try:
+        mapping_data = name_mapping_file.get_bytes().decode("utf-8")
+    except UnicodeDecodeError as e:
+        print(f"UTF-8 解码失败：{e}")
+        # 尝试 GBK 解码
+        try:
+            mapping_data = name_mapping_file.get_bytes().decode("gbk")
+        except UnicodeDecodeError as e2:
+            print(f"GBK 解码也失败：{e2}")
+            raise ValueError("无法解析文件，请确保文件编码为 UTF-8 或 GBK。")
+      
+    # 解析新旧名称对应关系
+    mapping = {}
+    for line in mapping_data.splitlines():
+        if "->" in line:
+            old_name, new_name = line.split("->")
+            mapping[old_name.strip()] = new_name.strip()
+
+    # 创建一个内存中的 ZIP 文件
+    zip_buffer = BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+        for db_file in db_files:
+            db_data = rename_excel_columns_with_extraction(db_file, mapping)
+    
+            # 将修改后的内容写入 ZIP 文件
+            renamed_file_name = f"{db_file.name}"
+            zip_file.writestr(renamed_file_name, db_data)
+
+    # 创建一个 ZIP 文件供下载
+    zip_buffer.seek(0)
+    zip_media = anvil.BlobMedia("application/zip", zip_buffer.read(), name="Renamed_Files.zip")
+    return zip_media
+
+def rename_excel_columns_with_extraction(excel_file, mapping):
+    """
+    对 Excel 文件中的 Name 列进行逐行解析并替换名称。
+    
+    :param excel_file: 包含 Excel 数据的二进制文件（如 anvil.BlobMedia 或 bytes）
+    :param mapping: 包含旧名称到新名称的映射关系
+    :return: 处理后的 Excel 文件字节数据
+    """
+    # 读取 Excel 文件到 DataFrame
+    excel_data = pd.read_excel(BytesIO(excel_file.get_bytes()), sheet_name=0)
+    
+    # 查找 Name 列的位置
+    name_column_index = None
+    
+    # 遍历前三行，查找列名中是否有 "Name"
+    for i in range(min(3, len(excel_data.columns))):  # 最多检查前三行
+        potential_headers = excel_data.iloc[i].values
+        for idx, header in enumerate(potential_headers):
+            if str(header).strip() == "Name":
+                name_column_index = idx
+                break
+        if name_column_index is not None:
+            break
+    
+    # 如果找到 Name 列，逐行处理
+    if name_column_index is not None:
+        # 设置 Name 列为标准列名
+        excel_data.columns.values[name_column_index] = "Name"
+        
+        def process_row(name):
+            extracted_name = extract_name(name)  # 提取名称
+            if extracted_name in mapping:  # 如果在映射中，替换为新名称
+                return name.replace(extracted_name, mapping[extracted_name])
+            return name
+        
+        excel_data["Name"] = excel_data["Name"].apply(process_row)
+    else:
+        raise ValueError("未能在前三行找到 Name 列，请确认文件结构是否正确。")
+
+    
+    # 保存处理后的 DataFrame 到 Excel
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        excel_data.to_excel(writer, index=False)
+    output.seek(0)
+    return output.getvalue()
