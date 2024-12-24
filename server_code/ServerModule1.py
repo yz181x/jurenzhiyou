@@ -212,7 +212,7 @@ def rename_monster_equipment(name_mapping_file, monster_files):
     return zip_media
 
 @anvil.server.callable
-def merge_zip_files(zip_files):
+def merge_zip_files(zip_files, name):
     # 合并多个 ZIP 文件
     final_zip_buffer = BytesIO()
     with zipfile.ZipFile(final_zip_buffer, 'w', zipfile.ZIP_DEFLATED) as final_zip:
@@ -221,7 +221,7 @@ def merge_zip_files(zip_files):
                 for file_name in batch_zip.namelist():
                     final_zip.writestr(file_name, batch_zip.read(file_name))
     final_zip_buffer.seek(0)
-    return anvil.BlobMedia('application/zip', final_zip_buffer.read(), name='final_monsters.zip')
+    return anvil.BlobMedia('application/zip', final_zip_buffer.read(), name=f'renamed_{name}.zip')
   
 # 定义用于提取名字的正则表达式
 def extract_name(line):

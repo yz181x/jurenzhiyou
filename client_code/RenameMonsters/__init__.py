@@ -49,7 +49,7 @@ class RenameMonsters(RenameMonstersTemplate):
         all_zip_files.append(zip_file)
     
     # 合并 ZIP 文件在服务端完成
-    final_zip = anvil.server.call("merge_zip_files", all_zip_files)
+    final_zip = anvil.server.call("merge_zip_files", all_zip_files, "monsters")
     return final_zip
   
   def link_1_click(self, **event_args):
@@ -101,5 +101,5 @@ class RenameMonsters(RenameMonstersTemplate):
         all_zip_files.append(zip_file)
     
     # 合并 ZIP 文件在服务端完成
-    final_zip = anvil.server.call("merge_zip_files", all_zip_files)
+    final_zip = anvil.server.call("merge_zip_files", all_zip_files, "dbs")
     return final_zip
