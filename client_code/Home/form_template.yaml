@@ -5,6 +5,10 @@ components:
     properties: {align: center, role: headline, text: 小工具}
     type: Label
   - components:
+    - layout_properties: {grid_position: 'EHLVVW,GZGQHB'}
+      name: label_3
+      properties: {align: center, role: title, text: 修改数据库和爆率文件的装备名、材料名。}
+      type: Label
     - layout_properties: {grid_position: 'LSVQFJ,ASGIRK'}
       name: spacer_1
       properties: {height: 128}
@@ -17,7 +21,7 @@ components:
       - event_bindings: {click: button_1_click}
         layout_properties: {grid_position: 'USBDGT,LAHGTJ'}
         name: button_1
-        properties: {align: full, role: filled-button, text: 重新起名}
+        properties: {align: full, role: filled-button, text: 1、重新起名}
         type: Button
       - layout_properties: {grid_position: 'ETRXFU,ZNGWUZ'}
         name: spacer_5
@@ -39,7 +43,7 @@ components:
       - event_bindings: {click: button_2_click}
         layout_properties: {grid_position: 'YCRSFU,NHFXCO'}
         name: button_2
-        properties: {align: full, role: filled-button, text: 改名}
+        properties: {align: full, role: filled-button, text: 2、改名}
         type: Button
       - layout_properties: {grid_position: 'ETRXFU,ZNGWUZ'}
         name: spacer_5_copy
