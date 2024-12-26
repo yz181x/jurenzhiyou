@@ -25,7 +25,8 @@ class RenameEquipments(RenameEquipmentsTemplate):
           
           self.equipment_names = list(all_names)  # 转换为列表          
           self.repeating_panel_1.items = [{"old_name": name, "new_name": ""} for name in self.equipment_names]
-          anvil.alert(f"一共{len(self.equipment_names)}个名称", title="", large=True)
+          if len(self.equipment_names) > 0:
+            alert(f'一共{len(self.equipment_names)}个名称', title="", large=True)
           # print(f"一共{len(self.equipment_names)}个名称")
       else:
           alert("请先上传文件！")

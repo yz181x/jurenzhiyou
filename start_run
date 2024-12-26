@@ -1,0 +1,1 @@
+java -Dfile.encoding=UTF-8 -cp ".;anvil-app-server.20241127-184105.jar;postgresql-42.7.4.jar" anvil.app_server.run --app . --database "jdbc:postgresql://localhost:5432/anvil?user=postgres&password=dyna123"
