@@ -12,15 +12,23 @@ def extract_names(uploaded_file):
     # 从Excel中提取名称
     file = BytesIO(uploaded_file.get_bytes())
     df = pd.read_excel(file, header=None)
-    for i in range(3):  # 遍历前三行查找“Name”表头
+    for i in range(3):  # 遍历前三行查找"Name"表头
         if "Name" in df.iloc[i].values:
             name_col = df.iloc[i].values.tolist().index("Name")
             return df.iloc[i + 1:, name_col].dropna().tolist()
-    for i in range(3):  # 遍历前三行查找“名称”表头
-        if "名称" in df.iloc[i].values:
-            name_col = df.iloc[i].values.tolist().index("名称")
+    # 尝试UTF-8编码的"名称"
+    for i in range(3):  # 遍历前三行查找"名称"表头
+        if "名称".encode('utf-8').decode('utf-8') in df.iloc[i].values:
+            name_col = df.iloc[i].values.tolist().index("名称".encode('utf-8').decode('utf-8'))
             return df.iloc[i + 1:, name_col].dropna().tolist()
-    raise ValueError("未找到‘Name’表头")
+            
+    # 尝试GBK编码的"名称" 
+    for i in range(3):  # 遍历前三行查找"名称"表头
+        if "名称".encode('gbk').decode('gbk') in df.iloc[i].values:
+            name_col = df.iloc[i].values.tolist().index("名称".encode('gbk').decode('gbk'))
+            return df.iloc[i + 1:, name_col].dropna().tolist()
+            
+    raise ValueError("未找到'Name'或'名称'表头")
 
 @anvil.server.callable
 def extract_names_with_filter(uploaded_file):
@@ -28,7 +36,7 @@ def extract_names_with_filter(uploaded_file):
     file = BytesIO(uploaded_file.get_bytes())
     df = pd.read_excel(file, header=None)
     
-    for i in range(3):  # 遍历前三行查找“Name”表头
+    for i in range(3):  # 遍历前三行查找"Name"表头
         if "Name" in df.iloc[i].values:
             name_col = df.iloc[i].values.tolist().index("Name")
             names = df.iloc[i + 1:, name_col].dropna().tolist()
@@ -73,7 +81,7 @@ def extract_names_with_filter(uploaded_file):
             unique_names = list(dict.fromkeys(filtered_names))
             return unique_names
     
-    raise ValueError("未找到‘Name’表头")
+    raise ValueError("未找到'Name'表头")
 
 @anvil.server.callable
 def generate_names(old_names):
@@ -291,48 +299,70 @@ def rename_db_in_content(name_mapping_file, db_files):
 
 def rename_excel_columns_with_extraction(excel_file, mapping):
     """
-    对 Excel 文件中的 Name 列进行逐行解析并替换名称。
+    对 Excel 文件中的 Name/名称 列进行逐行解析并替换名称。
     
     :param excel_file: 包含 Excel 数据的二进制文件（如 anvil.BlobMedia 或 bytes）
     :param mapping: 包含旧名称到新名称的映射关系
     :return: 处理后的 Excel 文件字节数据
     """
-    # 读取 Excel 文件到 DataFrame
-    excel_data = pd.read_excel(BytesIO(excel_file.get_bytes()), sheet_name=0)
+    # 读取 Excel 文件到 DataFrame，不指定 header
+    excel_data = pd.read_excel(BytesIO(excel_file.get_bytes()), sheet_name=0, header=None)
     
-    # 查找 Name 列的位置
+    # 查找 Name/名称 列的位置
     name_column_index = None
+    header_row_index = None
     
-    # 遍历前三行，查找列名中是否有 "Name"
-    for i in range(min(3, len(excel_data.columns))):  # 最多检查前三行
+    # 遍历前三行，查找列名中是否有 "Name" 或 "名称"
+    for i in range(min(3, len(excel_data))):  # 最多检查前三行
         potential_headers = excel_data.iloc[i].values
         for idx, header in enumerate(potential_headers):
-            if str(header).strip() == "Name":
+            header_str = str(header).strip()
+            # 检查是否为 "Name"
+            if header_str == "Name":
                 name_column_index = idx
+                header_row_index = i
                 break
+            # 尝试UTF-8编码的"名称"
+            try:
+                if header_str == "名称".encode('utf-8').decode('utf-8'):
+                    name_column_index = idx
+                    header_row_index = i
+                    break
+            except:
+                pass
+            # 尝试GBK编码的"名称"
+            try:
+                if header_str == "名称".encode('gbk').decode('gbk'):
+                    name_column_index = idx
+                    header_row_index = i
+                    break
+            except:
+                pass
         if name_column_index is not None:
             break
     
-    # 如果找到 Name 列，逐行处理
+    # 如果找到 Name/名称 列，逐行处理
     if name_column_index is not None:
-        # 设置 Name 列为标准列名
-        excel_data.columns.values[name_column_index] = "Name"
-        
         def process_row(name):
-            extracted_name = extract_name(name)  # 提取名称
+            if pd.isna(name):  # 跳过空值
+                return name
+            extracted_name = extract_name(str(name))  # 提取名称
             if extracted_name in mapping:  # 如果在映射中，替换为新名称
-                return name.replace(extracted_name, mapping[extracted_name])
+                return str(name).replace(extracted_name, mapping[extracted_name])
             return name
         
-        excel_data["Name"] = excel_data["Name"].apply(process_row)
+        # 只处理表头行之后的数据
+        for i in range(header_row_index + 1, len(excel_data)):
+            original_value = excel_data.iloc[i, name_column_index]
+            new_value = process_row(original_value)
+            excel_data.iloc[i, name_column_index] = new_value
     else:
-        raise ValueError("未能在前三行找到 Name 列，请确认文件结构是否正确。")
+        raise ValueError("未能在前三行找到 Name 或 名称 列，请确认文件结构是否正确。")
 
-    
-    # 保存处理后的 DataFrame 到 Excel
+    # 保存处理后的 DataFrame 到 Excel，保持原始格式
     output = BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        excel_data.to_excel(writer, index=False)
+        excel_data.to_excel(writer, index=False, header=False)
     output.seek(0)
     return output.getvalue()
 
