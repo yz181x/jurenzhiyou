@@ -104,8 +104,8 @@ def generate_names_with_dify(old_names):
 
     all_new_names = []
     
-    # 将名字分批，每批50个
-    batch_size = 50
+    # 将名字分批，每批25个
+    batch_size = 25
     batches = [old_names[i:i + batch_size] for i in range(0, len(old_names), batch_size)]
     
     for batch in batches:
