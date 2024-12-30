@@ -45,7 +45,7 @@ class RenameMonsters(RenameMonstersTemplate):
     for i in range(0, len(self.monster_files), batch_size):
         # print(f"rename from {i+1} to {i+1 + batch_size}")
         batch = self.monster_files[i:i + batch_size]
-        zip_file = anvil.server.call("rename_monster_equipment", self.name_mapping_file, batch)
+        zip_file = anvil.server.call("rename_txt_in_content", self.name_mapping_file, batch)
         all_zip_files.append(zip_file)
     
     # 合并 ZIP 文件在服务端完成
@@ -97,7 +97,7 @@ class RenameMonsters(RenameMonstersTemplate):
     for i in range(0, len(self.db_files), batch_size):
         # print(f"rename from {i+1} to {i+1 + batch_size}")
         batch = self.db_files[i:i + batch_size]
-        zip_file = anvil.server.call("rename_db_equipment", self.name_mapping_file, batch)
+        zip_file = anvil.server.call("rename_db_in_content", self.name_mapping_file, batch)
         all_zip_files.append(zip_file)
     
     # 合并 ZIP 文件在服务端完成

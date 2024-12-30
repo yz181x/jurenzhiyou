@@ -152,7 +152,7 @@ def save_mapping_file(items):
     return anvil.BlobMedia("text/csv", mapping_data.encode("utf-8"), name="Name_Mapping.csv")
 
 @anvil.server.callable
-def rename_monster_equipment(name_mapping_file, monster_files):
+def rename_txt_in_content(name_mapping_file, monster_files):
     # 读取新旧名称对应关系文件
     try:
         mapping_data = name_mapping_file.get_bytes().decode("utf-8")
@@ -254,7 +254,7 @@ def extract_name(line):
     return line.strip()
 
 @anvil.server.callable
-def rename_db_equipment(name_mapping_file, db_files):
+def rename_db_in_content(name_mapping_file, db_files):
     # 读取新旧名称对应关系文件
     try:
         mapping_data = name_mapping_file.get_bytes().decode("utf-8")
@@ -335,3 +335,51 @@ def rename_excel_columns_with_extraction(excel_file, mapping):
         excel_data.to_excel(writer, index=False)
     output.seek(0)
     return output.getvalue()
+
+@anvil.server.callable
+def rename_txt_in_filename(name_mapping_file, monster_files):
+    # 读取新旧名称对应关系文件
+    try:
+        mapping_data = name_mapping_file.get_bytes().decode("utf-8")
+    except UnicodeDecodeError as e:
+        print(f"UTF-8 解码失败：{e}")
+        # 尝试 GBK 解码
+        try:
+            mapping_data = name_mapping_file.get_bytes().decode("gbk")
+        except UnicodeDecodeError as e2:
+            print(f"GBK 解码也失败：{e2}")
+            raise ValueError("无法解析文件，请确保文件编码为 UTF-8 或 GBK。")
+      
+    # 解析新旧名称对应关系
+    mapping = {}
+    for line in mapping_data.splitlines():
+        if "->" in line:
+            old_name, new_name = line.split("->")
+            mapping[old_name.strip()] = new_name.strip()
+
+    # 创建一个内存中的 ZIP 文件
+    zip_buffer = BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+        for monster_file in monster_files:
+            original_filename = monster_file.name
+            new_filename = original_filename
+            
+            # 对文件名应用映射规则
+            for old_name, new_name in mapping.items():
+                if old_name in original_filename:
+                    new_filename = original_filename.replace(old_name, new_name)
+                    break  # 找到第一个匹配就停止
+            
+            # 读取文件内容
+            try:
+                file_content = monster_file.get_bytes()
+                # 将文件内容写入新的ZIP文件，使用新文件名
+                zip_file.writestr(new_filename, file_content)
+            except Exception as e:
+                print(f"处理文件 {original_filename} 时出错: {str(e)}")
+                continue
+
+    # 创建一个 ZIP 文件供下载
+    zip_buffer.seek(0)
+    zip_media = anvil.BlobMedia("application/zip", zip_buffer.read(), name="Renamed_Files.zip")
+    return zip_media
