@@ -6,7 +6,7 @@ components:
     type: Label
   - layout_properties: {grid_position: 'RPCBXN,MGPFVK'}
     name: label_6
-    properties: {align: center, background: 'theme:Tertiary', foreground: 'theme:On Primary', text: 该工具的主要作用是：根据数据库中装备、材料的名称，重新起名，并获得旧名字到新名字的对应关系。}
+    properties: {align: center, background: 'theme:Tertiary', foreground: 'theme:On Primary', text: 该工具的主要作用是：根据数据库中装备、材料、怪物的名称，重新起名，并获得旧名字到新名字的对应关系。}
     type: Label
   - layout_properties: {grid_position: 'ZDFNVV,UKMBYN'}
     name: spacer_1
@@ -16,7 +16,7 @@ components:
     - event_bindings: {change: file_loader_change}
       layout_properties: {full_width_row: false, grid_position: 'AIYNBM,LHDYLL'}
       name: file_loader
-      properties: {bold: true, italic: false, multiple: true, role: outlined-button, text: 1、选择需要重新起名的表格 cfg_equip.xls 和 cfg_item.xls （可多选）, underline: false}
+      properties: {bold: true, italic: false, multiple: true, role: outlined-button, text: '1、选择需要重新起名的数据库表格 (cfg_equip.xls | cfg_item.xls | cfg_monster等，可多选) ', underline: false}
       type: FileLoader
     layout_properties: {grid_position: 'SLMPMY,RHPHXG'}
     name: column_panel_1
