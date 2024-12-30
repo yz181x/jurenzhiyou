@@ -16,6 +16,10 @@ def extract_names(uploaded_file):
         if "Name" in df.iloc[i].values:
             name_col = df.iloc[i].values.tolist().index("Name")
             return df.iloc[i + 1:, name_col].dropna().tolist()
+    for i in range(3):  # 遍历前三行查找“名称”表头
+        if "名称" in df.iloc[i].values:
+            name_col = df.iloc[i].values.tolist().index("名称")
+            return df.iloc[i + 1:, name_col].dropna().tolist()
     raise ValueError("未找到‘Name’表头")
 
 @anvil.server.callable
@@ -48,7 +52,13 @@ def extract_names_with_filter(uploaded_file):
                 name = re.sub(r'Lv\d+', '', name)
                 name = re.sub(r'Lv\.\d+', '', name)
                 name = re.sub(r'LvMAX', '', name)
-                
+
+                # 移除字符串中BOSS字样
+                name = re.sub(r'BOSS', '', name)
+
+                # 移除独立的数字部分（当数字在字符串的尾部时）
+                name = re.sub(r'\s*\d+$', '', name)
+
                 # 移除独立的数字部分（当数字后跟随中文字符时）
                 name = re.sub(r'\b\d+\s*(?=\D)', '', name)
                 
@@ -227,12 +237,16 @@ def merge_zip_files(zip_files, name):
 def extract_name(line):
     # 去掉分数部分，如 "1/100" 或 "1/1"
     line = re.sub(r'\b\d+/\d+\b', '', line)
+    # 移除独立的数字部分（当数字在字符串的尾部时）
+    line = re.sub(r'\s*\d+$', '', line)
     # 去掉前置的独立整数，但保留中文字符
     line = re.sub(r'\b\d+\s*(?=\D)', '', line)
     # 去掉方括号、花括号中的内容
     line = re.sub(r'[\[\]\{\}\u300c\u300d\u300e\u300f][^\[\]\{\}\u300c\u300d\u300e\u300f]*[\[\]\{\}\u300c\u300d\u300e\u300f]', '', line)
     # 去掉等级标识，如 "Lv1", "Lv.2", "LvMAX"
     line = re.sub(r'Lv(?:\.?\d+|MAX)', '', line, flags=re.IGNORECASE)
+    # 去掉字符串中BOSS字样
+    line = re.sub(r'BOSS', '', line)
     # 去掉多余的空格和可能残留的无效字符
     line = re.sub(r'^\s*|\s+$', '', line)
     # 去掉多余的连续空格
