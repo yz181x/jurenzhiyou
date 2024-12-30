@@ -102,4 +102,33 @@ class RenameMonsters(RenameMonstersTemplate):
     
     # 合并 ZIP 文件在服务端完成
     final_zip = anvil.server.call("merge_zip_files", all_zip_files, "dbs")
+    return final_zip     
+
+  def rename_txt_filename_button_click(self, **event_args):
+    # 修改怪物爆出的装备名称
+    if not self.name_mapping_file:
+        alert("请先上传新旧名称对应关系表！")
+        return
+    if not self.monster_files:
+        alert("请上传至少一个怪物文件！")
+        return
+
+    # 调用服务器端函数
+    # zip_file = anvil.server.call("rename_monster_equipment", self.name_mapping_file, self.monster_files)
+    self.zip_monster_file = self.rename_txt_files_in_batches()
+    alert("所有怪物文件已完成改名！")
+
+  def rename_txt_files_in_batches(self):
+    batch_size = 100
+    all_zip_files = []
+    
+    # 分批处理 monster_files
+    for i in range(0, len(self.monster_files), batch_size):
+        # print(f"rename from {i+1} to {i+1 + batch_size}")
+        batch = self.monster_files[i:i + batch_size]
+        zip_file = anvil.server.call("rename_txt_in_filename", self.name_mapping_file, batch)
+        all_zip_files.append(zip_file)
+    
+    # 合并 ZIP 文件在服务端完成
+    final_zip = anvil.server.call("merge_zip_files", all_zip_files, "monsters")
     return final_zip
